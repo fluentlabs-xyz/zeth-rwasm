@@ -44,10 +44,13 @@ pub const GWEI_TO_WEI: U256 = uint!(1_000_000_000_U256);
 
 /// The Ethereum mainnet specification.
 pub static ETH_MAINNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
-    // chain_id: 1,
-    chain_id: 1337,
-    // max_spec_id: SpecId::SHANGHAI,
-    max_spec_id: SpecId::CANCUN,
+    // eth
+    chain_id: 1,
+    max_spec_id: SpecId::SHANGHAI,
+
+    // fluent
+    // chain_id: 1337,
+    // max_spec_id: SpecId::CANCUN,
     hard_forks: BTreeMap::from([
         (SpecId::MERGE, ForkCondition::Block(15537394)),
         (SpecId::SHANGHAI, ForkCondition::Timestamp(1681338455)),
