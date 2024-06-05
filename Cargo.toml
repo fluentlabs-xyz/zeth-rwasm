@@ -1,13 +1,19 @@
 [workspace]
 resolver = "2"
-members = ["guests", "host", "lib", "primitives", "testing/ef-tests"]
+members = [
+    #    "guests",
+    "host",
+    "lib",
+    "primitives",
+    #    "testing/ef-tests",
+]
 
 # Always optimize; building and running the guest takes much longer without optimization.
-[profile.dev]
-opt-level = 3
-
-[profile.dev.build-override]
-opt-level = 3
+#[profile.dev]
+#opt-level = 3
+#
+#[profile.dev.build-override]
+#opt-level = 3
 
 [profile.release]
 debug = 1
@@ -27,3 +33,9 @@ revm = { version = "5.0", default-features = false, features = [
     "serde",
     "optimism",
 ] }
+#revm = { path = "../revm-rwasm/crates/revm_fluent", package = "revm-fluent", default-features = false, features = [
+#    "std",
+#    "secp256k1",
+#    "blst",
+#    "revm-rwasm",
+#] }
