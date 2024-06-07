@@ -18,6 +18,7 @@ use anyhow::{anyhow, Result};
 use ethers_core::types::{
     Block, Bytes, EIP1186ProofResponse, Transaction, TransactionReceipt, H160, H256, U256,
 };
+use hashbrown::hash_map::Iter;
 use serde::{Deserialize, Serialize};
 
 pub mod cached_rpc_provider;
@@ -59,6 +60,7 @@ pub trait Provider: Send {
     fn get_transaction_count(&mut self, query: &AccountQuery) -> Result<U256>;
     fn get_balance(&mut self, query: &AccountQuery) -> Result<U256>;
     fn get_code(&mut self, query: &AccountQuery) -> Result<Bytes>;
+    fn get_all_codes(&self) -> std::collections::hash_map::Iter<AccountQuery, Bytes>;
     fn get_storage(&mut self, query: &StorageQuery) -> Result<H256>;
 }
 

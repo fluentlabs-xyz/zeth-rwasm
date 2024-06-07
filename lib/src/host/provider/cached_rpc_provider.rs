@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::collections::hash_map::Iter;
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
@@ -125,6 +126,10 @@ impl Provider for CachedRpcProvider {
         self.cache.insert_code(query.clone(), out.clone());
 
         Ok(out)
+    }
+
+    fn get_all_codes(&self) -> Iter<AccountQuery, Bytes> {
+        unimplemented!()
     }
 
     fn get_storage(&mut self, query: &StorageQuery) -> Result<H256> {

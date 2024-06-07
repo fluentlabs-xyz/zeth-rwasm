@@ -3,7 +3,7 @@ CARGO_PROFILE_DEV_BUILD_OVERRIDE_DEBUG=true
 
 #TARGET=release
 TARGET=debug
-BLOCK_NUMBER=3
+#BLOCK_NUMBER=3
 #BLOCK_NUMBER=16424130
 BLOCK_NUMBER=17034871
 RETH_URL=http://localhost
@@ -36,3 +36,15 @@ run_zeth_cargo:
 .PHONY: build
 build:
 	cargo build --profile=dev #-r
+
+
+TARGET_WASM=wasm32-unknown-unknown
+
+.PHONY: build_wasm
+build_wasm:
+	cargo b --manifest-path ./stf/Cargo.toml --release --target=${TARGET_WASM}
+	mkdir -p build
+	cp ./target/${TARGET_WASM}/release/fluent_stf.wasm ./build/fluent-stf.wasm
+	wasm2wat ./build/fluent-stf.wasm > ./build/fluent-stf.wat
+	du -sch build/fluent-stf.wasm
+

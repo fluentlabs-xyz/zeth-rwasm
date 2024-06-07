@@ -16,7 +16,7 @@ use core::iter::once;
 
 use alloy_sol_types::{sol, SolInterface};
 use anyhow::{bail, ensure, Context, Result};
-#[cfg(target_os = "zkvm")]
+#[cfg(target_arch = "wasm32")]
 use risc0_zkvm::{guest::env, serde::to_vec, sha::Digest};
 use serde::{Deserialize, Serialize};
 use zeth_primitives::{
@@ -33,9 +33,10 @@ use zeth_primitives::{
     uint, Address, FixedBytes, RlpBytes, B256, U256,
 };
 
-#[cfg(not(target_os = "zkvm"))]
+#[cfg(not(target_arch = "wasm32"))]
 use crate::{
-    builder::{BlockBuilderStrategy, OptimismStrategy},
+    builder::BlockBuilderStrategy,
+    // builder::OptimismStrategy,
     consts::OP_MAINNET_CHAIN_SPEC,
     host::{preflight::Preflight, provider_db::ProviderDb, ProviderFactory},
 };
@@ -109,7 +110,7 @@ pub struct DeriveOutput {
     pub block_image_id: ImageId,
 }
 
-#[cfg(target_os = "zkvm")]
+#[cfg(target_arch = "wasm32")]
 type ProviderFactory = ();
 
 /// Implementation of the actual derivation process.
@@ -131,7 +132,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
     ) -> Result<Self> {
         derive_input.db.validate(&chain_config)?;
 
-        #[cfg(not(target_os = "zkvm"))]
+        #[cfg(not(target_arch = "wasm32"))]
         ensure!(provider_factory.is_some(), "Missing provider factory!");
 
         // read system config from op_head (seq_no/epoch_no..etc)
@@ -140,7 +141,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
             .get_full_op_block(derive_input.op_head_block_no)?;
         let op_head_block_hash = op_head.block_header.hash();
 
-        #[cfg(not(target_os = "zkvm"))]
+        #[cfg(not(target_arch = "wasm32"))]
         log::debug!(
             "Fetched Op head (block no {}) {}",
             derive_input.op_head_block_no,
@@ -177,7 +178,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
             eth_head.block_header.hash() == set_l1_block_values.hash,
             "Ethereum head block hash mismatch"
         );
-        #[cfg(not(target_os = "zkvm"))]
+        #[cfg(not(target_arch = "wasm32"))]
         log::debug!(
             "Fetched Eth head (block no {}) {}",
             eth_block_no,
@@ -217,7 +218,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
         &mut self,
         mut op_block_inputs: Option<&mut Vec<BlockBuildInput<OptimismTxEssence>>>,
     ) -> Result<DeriveOutput> {
-        #[cfg(target_os = "zkvm")]
+        #[cfg(target_arch = "wasm32")]
         op_block_inputs.take();
 
         ensure!(
@@ -236,12 +237,12 @@ impl<D: BatcherDb> DeriveMachine<D> {
         let mut derived_op_blocks = Vec::new();
         let mut process_next_eth_block = false;
 
-        #[cfg(target_os = "zkvm")]
+        #[cfg(target_arch = "wasm32")]
         let mut op_block_output_iter =
             core::mem::take(&mut self.derive_input.op_block_outputs).into_iter();
 
         while self.op_head_block_header.number < target_block_no {
-            #[cfg(not(target_os = "zkvm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             log::trace!(
                 "op_block_no = {}, eth_block_no = {}",
                 self.op_head_block_header.number,
@@ -267,7 +268,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
             while let Some(op_batch) = self.op_batcher.read_batch()? {
                 // Process the batch
 
-                #[cfg(not(target_os = "zkvm"))]
+                #[cfg(not(target_arch = "wasm32"))]
                 log::debug!(
                     "Read batch for Op block {}: timestamp={}, epoch={}, tx count={}, parent hash={:?}",
                     self.op_head_block_header.number + 1,
@@ -311,7 +312,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
                             decoded_batch_transactions.push(tx);
                         }
                         Err(_err) => {
-                            #[cfg(not(target_os = "zkvm"))]
+                            #[cfg(not(target_arch = "wasm32"))]
                             log::warn!("Skipping undecodable transaction: {:#}", _err);
                             decoding_error = true;
                             break;
@@ -356,7 +357,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
 
                 // host: go run the preflight and queue up the input data (using RLP decoded
                 // transactions)
-                #[cfg(not(target_os = "zkvm"))]
+                #[cfg(not(target_arch = "wasm32"))]
                 let op_block_output = {
                     // Create the provider DB
                     // todo: run without factory (using outputs)
@@ -397,7 +398,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
                 };
                 // guest: ask for receipt about provided block build output (compressed state trie
                 // expected)
-                #[cfg(target_os = "zkvm")]
+                #[cfg(target_arch = "wasm32")]
                 let op_block_output = {
                     let output = op_block_output_iter.next().unwrap();
                     // A valid receipt should be provided for block building results
@@ -423,7 +424,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
                         ..
                     } => {
                         // obtain verified op block header
-                        #[cfg(not(target_os = "zkvm"))]
+                        #[cfg(not(target_arch = "wasm32"))]
                         log::info!(
                             "Derived Op block {} w/ hash {}",
                             new_block_head.number,
@@ -450,7 +451,7 @@ impl<D: BatcherDb> DeriveMachine<D> {
                         }
                     }
                     BlockBuildOutput::FAILURE { .. } => {
-                        #[cfg(not(target_os = "zkvm"))]
+                        #[cfg(not(target_arch = "wasm32"))]
                         log::warn!("Failed to build block from batch");
                     }
                 };

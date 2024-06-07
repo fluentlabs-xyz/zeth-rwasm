@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use anyhow::bail;
-#[cfg(target_os = "zkvm")]
+#[cfg(target_arch = "wasm32")]
 use risc0_zkvm::{guest::env, serde::to_vec, sha::Digest};
 use serde::{Deserialize, Serialize};
 use zeth_primitives::{
@@ -118,7 +118,7 @@ impl ComposeInput {
                 // Check initial data
                 let (mut eth_tail, mut mountain_range) =
                     if let Some((prior_output, prior_range)) = prior {
-                        #[cfg(target_os = "zkvm")]
+                        #[cfg(target_arch = "wasm32")]
                         {
                             // A valid receipt should be provided for prior aggregation
                             let compose_journal = to_vec(&prior_output)
@@ -184,7 +184,7 @@ impl ComposeInput {
                 derivation: derive_output,
                 eth_tail_proof,
             } => {
-                #[cfg(target_os = "zkvm")]
+                #[cfg(target_arch = "wasm32")]
                 {
                     // Verify derivation receipt
                     let derive_journal = to_vec(&derive_output)
@@ -221,7 +221,7 @@ impl ComposeInput {
                 left: left_compose_output,
                 right: right_compose_output,
             } => {
-                #[cfg(target_os = "zkvm")]
+                #[cfg(target_arch = "wasm32")]
                 {
                     // Verify composition receipts
                     let left_compose_journal = to_vec(&left_compose_output)
@@ -290,7 +290,7 @@ impl ComposeInput {
             }
             ComposeInputOperation::FINISH { prep, aggregate } => {
                 // Verify prep receipt
-                #[cfg(target_os = "zkvm")]
+                #[cfg(target_arch = "wasm32")]
                 {
                     // A valid receipt should be provided for merkle tree prep
                     let prep_journal = to_vec(&prep).expect("Failed to encode prep journal");
@@ -298,7 +298,7 @@ impl ComposeInput {
                         .expect("Failed to validate prep receipt");
                 }
                 // Verify aggregate receipt
-                #[cfg(target_os = "zkvm")]
+                #[cfg(target_arch = "wasm32")]
                 {
                     // A valid receipt should be provided for aggregation
                     let aggregation_journal =

@@ -15,7 +15,8 @@
 use core::mem;
 
 use anyhow::{bail, Result};
-use hashbrown::HashMap;
+use fluentbase_types::POSEIDON_EMPTY;
+use crate::HashMap;
 use revm::{
     primitives::{AccountInfo, Bytecode, B256},
     Database, DatabaseCommit,
@@ -113,6 +114,11 @@ impl DbInitStrategy<MemDb> for MemDbInitStrategy {
                     nonce: state_account.nonce,
                     code_hash: state_account.code_hash,
                     code: Some(bytecode),
+                    // TODO need to fill in these fields?
+                    #[cfg(feature = "revm-rwasm")]
+                    rwasm_code_hash: POSEIDON_EMPTY,
+                    #[cfg(feature = "revm-rwasm")]
+                    rwasm_code: Some(Bytecode::new()),
                 },
                 state: AccountState::None,
                 storage,
@@ -120,7 +126,7 @@ impl DbInitStrategy<MemDb> for MemDbInitStrategy {
 
             accounts.insert(*address, mem_account);
         }
-        guest_mem_forget(contracts);
+        // guest_mem_forget(contracts);
 
         // prepare block hash history
         let mut block_hashes =
@@ -154,8 +160,13 @@ impl DbInitStrategy<MemDb> for MemDbInitStrategy {
         }
 
         // Store database
+        // let contracts = Default::default();
+        let mut contracts: HashMap<B256, Bytecode> = contracts.into_iter()
+            .map(|v| (v.0, Bytecode::LegacyRaw(v.1.clone()))).collect();
+        contracts.insert(KECCAK_EMPTY, Bytecode::new());
         Ok(block_builder.with_db(MemDb {
             accounts,
+            contracts,
             block_hashes,
         }))
     }

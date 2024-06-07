@@ -22,7 +22,7 @@ use anyhow::{anyhow, Context, Result};
 use ethers_core::types::{
     Block as EthersBlock, EIP1186ProofResponse, Transaction as EthersTransaction,
 };
-use hashbrown::{HashMap, HashSet};
+use crate::{HashMap, HashSet};
 use log::{debug, info};
 use zeth_primitives::{
     block::Header,
@@ -138,7 +138,8 @@ where
         // Create the block builder, run the transactions and extract the DB even if run fails
         let db_backup = Arc::new(Mutex::new(None));
         let builder =
-            BlockBuilder::new(chain_spec, input, Some(db_backup.clone())).with_db(provider_db);
+            BlockBuilder::new(chain_spec, input/*, Some(db_backup.clone())*/).with_db(provider_db);
+
         let mut provider_db = match builder.prepare_header::<N::HeaderPrepStrategy>() {
             Ok(builder) => match builder.execute_transactions::<N::TxExecStrategy>() {
                 Ok(builder) => builder.take_db().unwrap(),
@@ -237,7 +238,7 @@ impl<E: TxEssence> TryFrom<Data<E>> for BlockBuildInput<E> {
         for account in data.db.accounts.values() {
             let code = account.info.code.clone().context("missing code")?;
             if !code.is_empty() {
-                contracts.insert(code.bytecode);
+                contracts.insert(code.bytecode().clone());
             }
         }
 

@@ -19,6 +19,7 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+use std::collections::hash_map::Iter;
 
 use anyhow::{anyhow, Context, Result};
 use ethers_core::types::{
@@ -188,6 +189,10 @@ impl Provider for FileProvider {
             Some(val) => Ok(val.clone()),
             None => Err(anyhow!("No data for {:?}", query)),
         }
+    }
+
+    fn get_all_codes(&self) -> Iter<AccountQuery, Bytes> {
+        self.code.iter()
     }
 
     fn get_storage(&mut self, query: &StorageQuery) -> Result<H256> {

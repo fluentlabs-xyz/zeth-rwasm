@@ -14,7 +14,7 @@
 
 use anyhow::{bail, Context, Result};
 use ethers_core::types::EIP1186ProofResponse;
-use hashbrown::HashMap;
+use crate::HashMap;
 use log::error;
 use zeth_primitives::{
     block::Header,

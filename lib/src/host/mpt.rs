@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use anyhow::{bail, Context, Result};
-use hashbrown::HashMap;
+use crate::HashMap;
 use zeth_primitives::trie::{to_encoded_path, MptNode, MptNodeData, MptNodeReference};
 
 /// Parses proof bytes into a vector of MPT nodes.

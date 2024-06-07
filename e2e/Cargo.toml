@@ -1,0 +1,22 @@
+[package]
+name = "zeth-e2e"
+version = "0.1.0"
+authors.workspace = true
+repository.workspace = true
+edition.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+anyhow = { workspace = true }
+ethers-contract = { workspace = true }
+ethers-core = { workspace = true }
+ethers-providers = { workspace = true }
+serde = { workspace = true }
+
+zeth-lib = { path = "../lib" }
+log = "0.4.21"
+env_logger = "0.11.3"

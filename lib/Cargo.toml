@@ -4,13 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-alloy-rlp = { version = "0.3", default-features = false }
-alloy-rlp-derive = { version = "0.3", default-features = false }
-alloy-sol-types = "0.6"
-anyhow = "1.0"
-bytes = "1.5"
+alloy-rlp = { workspace = true }
+alloy-rlp-derive = { workspace = true }
+alloy-sol-types = { workspace = true }
+anyhow = { workspace = true }
+bytes = { workspace = true }
+cfg-if = { workspace = true }
 ethers-core = { version = "2.0", features = ["optimism"] }
-hashbrown = { workspace = true }
+hashbrown.workspace = true
 libflate = "2.0.0"
 once_cell = "1.18"
 revm = { workspace = true }
@@ -20,7 +21,9 @@ serde = "1.0"
 thiserror = "1.0"
 zeth-primitives = { path = "../primitives", features = ["revm", "ethers"] }
 
-[target.'cfg(not(target_os = "zkvm"))'.dependencies]
+fluentbase-types = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 chrono = { version = "0.4", default-features = false }
 ethers-providers = { version = "2.0", features = ["optimism"] }
 flate2 = "1.0.26"
@@ -32,3 +35,13 @@ zeth-primitives = { path = "../primitives", features = ["revm", "ethers"] }
 [dev-dependencies]
 bincode = "1.3"
 serde_with = "3.1"
+
+[features]
+default = [
+    "std",
+    "revm-rwasm",
+]
+std = [
+    "revm/std",
+]
+revm-rwasm = []

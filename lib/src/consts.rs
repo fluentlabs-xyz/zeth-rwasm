@@ -44,13 +44,19 @@ pub const GWEI_TO_WEI: U256 = uint!(1_000_000_000_U256);
 
 /// The Ethereum mainnet specification.
 pub static ETH_MAINNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
-    // eth
     chain_id: 1,
     max_spec_id: SpecId::SHANGHAI,
+    hard_forks: BTreeMap::from([
+        (SpecId::MERGE, ForkCondition::Block(15537394)),
+        (SpecId::SHANGHAI, ForkCondition::Timestamp(1681338455)),
+        (SpecId::CANCUN, ForkCondition::Timestamp(1710338135)),
+    ]),
+    gas_constants: BTreeMap::from([(SpecId::LONDON, ETH_MAINNET_EIP1559_CONSTANTS)]),
+});
 
-    // fluent
-    // chain_id: 1337,
-    // max_spec_id: SpecId::CANCUN,
+pub static FLUENT_DEVNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
+    chain_id: 1337,
+    max_spec_id: SpecId::CANCUN,
     hard_forks: BTreeMap::from([
         (SpecId::MERGE, ForkCondition::Block(15537394)),
         (SpecId::SHANGHAI, ForkCondition::Timestamp(1681338455)),
@@ -70,19 +76,21 @@ pub const ETH_MAINNET_EIP1559_CONSTANTS: Eip1559Constants = Eip1559Constants {
 /// The Optimism mainnet specification.
 pub static OP_MAINNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
     chain_id: 10,
-    max_spec_id: SpecId::CANYON,
+    // max_spec_id: SpecId::CANYON,
+    max_spec_id: SpecId::CANCUN,
     hard_forks: BTreeMap::from([
-        (SpecId::BEDROCK, ForkCondition::Timestamp(1679079600)),
+        // (SpecId::BEDROCK, ForkCondition::Timestamp(1679079600)),
         // Regolith is activated from day 1 of Bedrock on mainnet
-        (SpecId::REGOLITH, ForkCondition::Timestamp(1679079600)),
+        // (SpecId::REGOLITH, ForkCondition::Timestamp(1679079600)),
         // Canyon is activated 2024-01-11 at 17:00:01 UTC
-        (SpecId::CANYON, ForkCondition::Timestamp(1704992401)),
+        // (SpecId::CANYON, ForkCondition::Timestamp(1704992401)),
         // Delta is activated 2024-02-22 at 17:00:01 UTC
         (SpecId::LATEST, ForkCondition::Timestamp(1708560000)),
     ]),
     gas_constants: BTreeMap::from([
         (
-            SpecId::BEDROCK,
+            // SpecId::BEDROCK,
+            SpecId::CANCUN,
             Eip1559Constants {
                 base_fee_change_denominator: uint!(50_U256),
                 base_fee_max_increase_denominator: uint!(10_U256),
@@ -91,7 +99,8 @@ pub static OP_MAINNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
             },
         ),
         (
-            SpecId::CANYON,
+            SpecId::CANCUN,
+            // SpecId::CANYON,
             Eip1559Constants {
                 base_fee_change_denominator: uint!(250_U256),
                 base_fee_max_increase_denominator: uint!(10_U256),

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(target_os = "zkvm"))]
+#[cfg(feature = "std")]
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
@@ -26,7 +26,9 @@ use zeth_primitives::{
 
 use crate::{
     builder::{
-        execute::{ethereum::EthTxExecStrategy, optimism::OpTxExecStrategy, TxExecStrategy},
+        execute::ethereum::EthTxExecStrategy,
+        // execute::optimism::OpTxExecStrategy,
+        execute::TxExecStrategy,
         finalize::{BlockFinalizeStrategy, MemDbBlockFinalizeStrategy},
         initialize::{DbInitStrategy, MemDbInitStrategy},
         prepare::{EthHeaderPrepStrategy, HeaderPrepStrategy},
@@ -38,14 +40,14 @@ use crate::{
 };
 
 mod execute;
-mod finalize;
+pub mod finalize;
 mod initialize;
 mod prepare;
 
-#[cfg(not(target_os = "zkvm"))]
-type DatabaseRescue<D> = Arc<Mutex<Option<D>>>;
-#[cfg(target_os = "zkvm")]
-type DatabaseRescue<D> = core::marker::PhantomData<D>;
+// #[cfg(not(target_arch = "wasm32"))]
+// type DatabaseRescue<D> = Arc<Mutex<Option<D>>>;
+// #[cfg(target_arch = "wasm32")]
+// type DatabaseRescue<D> = core::marker::PhantomData<D>;
 
 /// A generic builder for building a block.
 #[derive(Clone, Debug)]
@@ -55,22 +57,22 @@ pub struct BlockBuilder<'a, D, E: TxEssence> {
     pub(crate) db: Option<D>,
     pub(crate) spec_id: Option<SpecId>,
     pub(crate) header: Option<Header>,
-    pub db_drop_destination: Option<DatabaseRescue<D>>,
+    // pub db_drop_destination: Option<DatabaseRescue<D>>,
 }
 
-// This implementation allows us to recover data during erroneous block builds on the host
-#[cfg(not(target_os = "zkvm"))]
-impl<'a, D, E: TxEssence> Drop for BlockBuilder<'a, D, E> {
-    fn drop(&mut self) {
-        if let Some(backup_target) = &mut self.db_drop_destination {
-            if let Some(dropped_db) = self.db.take() {
-                if let Ok(mut target_option) = backup_target.lock() {
-                    target_option.replace(dropped_db);
-                }
-            }
-        }
-    }
-}
+// // This implementation allows us to recover data during erroneous block builds on the
+// host #[cfg(not(target_arch = "wasm32"))]
+// impl<'a, D, E: TxEssence> Drop for BlockBuilder<'a, D, E> {
+//     fn drop(&mut self) {
+//         if let Some(backup_target) = &mut self.db_drop_destination {
+//             if let Some(dropped_db) = self.db.take() {
+//                 if let Ok(mut target_option) = backup_target.lock() {
+//                     target_option.replace(dropped_db);
+//                 }
+//             }
+//         }
+//     }
+// }
 
 impl<D, E> BlockBuilder<'_, D, E>
 where
@@ -82,7 +84,7 @@ where
     pub fn new(
         chain_spec: &ChainSpec,
         input: BlockBuildInput<E>,
-        db_backup: Option<DatabaseRescue<D>>,
+        // db_backup: Option<DatabaseRescue<D>>,
     ) -> BlockBuilder<'_, D, E> {
         BlockBuilder {
             chain_spec,
@@ -90,7 +92,7 @@ where
             spec_id: None,
             header: None,
             input,
-            db_drop_destination: db_backup,
+            // db_drop_destination: db_backup,
         }
     }
 
@@ -152,7 +154,7 @@ pub trait BlockBuilderStrategy {
     ) -> Result<BlockBuildOutput> {
         let input_hash = input.state_input.hash();
 
-        let builder = BlockBuilder::<MemDb, Self::TxEssence>::new(chain_spec, input, None);
+        let builder = BlockBuilder::<MemDb, Self::TxEssence>::new(chain_spec, input);
 
         // Database initialization errors do not indicate a faulty block
         let initialized = builder.initialize_database::<Self::DbInitStrategy>()?;
@@ -200,13 +202,13 @@ impl BlockBuilderStrategy for EthereumStrategy {
     type BlockFinalizeStrategy = MemDbBlockFinalizeStrategy;
 }
 
-/// The [BlockBuilderStrategy] for building an Optimism block.
-pub struct OptimismStrategy {}
-
-impl BlockBuilderStrategy for OptimismStrategy {
-    type TxEssence = OptimismTxEssence;
-    type DbInitStrategy = MemDbInitStrategy;
-    type HeaderPrepStrategy = EthHeaderPrepStrategy;
-    type TxExecStrategy = OpTxExecStrategy;
-    type BlockFinalizeStrategy = MemDbBlockFinalizeStrategy;
-}
+// /// The [BlockBuilderStrategy] for building an Optimism block.
+// pub struct OptimismStrategy {}
+//
+// impl BlockBuilderStrategy for OptimismStrategy {
+//     type TxEssence = OptimismTxEssence;
+//     type DbInitStrategy = MemDbInitStrategy;
+//     type HeaderPrepStrategy = EthHeaderPrepStrategy;
+//     type TxExecStrategy = OpTxExecStrategy;
+//     type BlockFinalizeStrategy = MemDbBlockFinalizeStrategy;
+// }

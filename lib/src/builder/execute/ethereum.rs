@@ -15,7 +15,7 @@
 use core::{fmt::Debug, mem::take};
 
 use anyhow::{anyhow, bail, Context};
-#[cfg(not(target_os = "zkvm"))]
+#[cfg(not(target_arch = "wasm32"))]
 use log::{debug, trace};
 use revm::{
     interpreter::Host,
@@ -53,7 +53,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
             .as_mut()
             .expect("Header is not initialized");
 
-        #[cfg(not(target_os = "zkvm"))]
+        #[cfg(not(target_arch = "wasm32"))]
         {
             use chrono::{TimeZone, Utc};
             let dt = Utc
@@ -128,7 +128,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
                 .recover_from()
                 .with_context(|| format!("Error recovering address for transaction {}", tx_no))?;
 
-            #[cfg(not(target_os = "zkvm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             {
                 let tx_hash = tx.hash();
                 trace!("Tx no. {} (hash: {})", tx_no, tx_hash);
@@ -145,7 +145,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
             }
 
             // process the transaction
-            fill_eth_tx_env(&mut evm.env_mut().tx, &tx.essence, tx_from);
+            fill_eth_tx_env(&mut evm.context.env_mut().tx, &tx.essence, tx_from);
             let ResultAndState { result, state } = evm
                 .transact()
                 .map_err(|evm_err| anyhow!("Error at transaction {}: {:?}", tx_no, evm_err))
@@ -155,7 +155,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
             let gas_used = result.gas_used().try_into().unwrap();
             cumulative_gas_used = cumulative_gas_used.checked_add(gas_used).unwrap();
 
-            #[cfg(not(target_os = "zkvm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             trace!("  Ok: {:?}", result);
 
             // create the receipt from the EVM result
@@ -163,7 +163,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
                 tx.essence.tx_type(),
                 result.is_success(),
                 cumulative_gas_used,
-                result.logs().into_iter().map(|log| log.into()).collect(),
+                result.logs().into_iter().map(|log| log.clone().into()).collect(),
             );
 
             // accumulate logs to the block bloom filter
@@ -181,7 +181,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
                 .expect("failed to insert receipt");
 
             // update account states
-            #[cfg(not(target_os = "zkvm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             for (address, account) in &state {
                 if account.is_touched() {
                     // log account
@@ -225,7 +225,7 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
                 .checked_mul(withdrawal.amount.try_into().unwrap())
                 .unwrap();
 
-            #[cfg(not(target_os = "zkvm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             {
                 trace!("Withdrawal no. {}", withdrawal.index);
                 trace!("  Recipient: {:?}", withdrawal.address);
@@ -256,7 +256,8 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
         // Leak memory, save cycles
         guest_mem_forget([tx_trie, receipt_trie, withdrawals_trie]);
         // Return block builder with updated database
-        Ok(block_builder.with_db(evm.context.evm.db))
+        let (db, _) = evm.into_db_and_env_with_handler_cfg();
+        Ok(block_builder.with_db(db))
     }
 }
 

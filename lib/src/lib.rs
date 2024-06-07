@@ -14,22 +14,36 @@
 
 extern crate core;
 
-#[cfg(not(target_os = "zkvm"))]
+#[cfg(not(target_arch = "wasm32"))]
 pub mod host;
 
 pub mod builder;
 pub mod consts;
 pub mod input;
 pub mod mem_db;
-pub mod optimism;
+// pub mod optimism;
 pub mod output;
 
 mod utils;
 
 pub use zeth_primitives::transactions::{ethereum::EthereumTxEssence, optimism::OptimismTxEssence};
 
+// #[cfg(feature = "std")]
+// use std::collections::{HashMap, hash_map::Entry};
+// #[cfg(not(feature = "std"))]
+// use hashbrown::{HashMap, hash_map::Entry};
+
+cfg_if::cfg_if! {
+    if #[cfg(all(not(feature = "hashbrown"), feature = "std"))] {
+        pub use std::collections::{hash_map, hash_set, HashMap, HashSet};
+        use hashbrown as _;
+    } else {
+        pub use hashbrown::{hash_map, hash_set, HashMap, HashSet};
+    }
+}
+
 /// call forget only if running inside the guest
 pub fn guest_mem_forget<T>(_t: T) {
-    #[cfg(target_os = "zkvm")]
+    #[cfg(target_arch = "wasm32")]
     core::mem::forget(_t)
 }

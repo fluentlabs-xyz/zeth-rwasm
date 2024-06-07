@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::collections::hash_map::Iter;
 use anyhow::{anyhow, Result};
 use ethers_core::types::{
     Block, Bytes, EIP1186ProofResponse, Transaction, TransactionReceipt, H256, U256,
@@ -123,6 +124,10 @@ impl Provider for RpcProvider {
         )?;
 
         Ok(out)
+    }
+
+    fn get_all_codes(&self) -> Iter<AccountQuery, Bytes> {
+        unimplemented!()
     }
 
     fn get_storage(&mut self, query: &StorageQuery) -> Result<H256> {
