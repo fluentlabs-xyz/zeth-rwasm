@@ -18,7 +18,6 @@ use anyhow::{anyhow, Result};
 use ethers_core::types::{
     Block, Bytes, EIP1186ProofResponse, Transaction, TransactionReceipt, H160, H256, U256,
 };
-use hashbrown::hash_map::Iter;
 use serde::{Deserialize, Serialize};
 
 pub mod cached_rpc_provider;

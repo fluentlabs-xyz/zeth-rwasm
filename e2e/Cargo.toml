@@ -16,7 +16,9 @@ ethers-contract = { workspace = true }
 ethers-core = { workspace = true }
 ethers-providers = { workspace = true }
 serde = { workspace = true }
+alloy-primitives = { workspace = true }
+zeth-primitives = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
 
 zeth-lib = { path = "../lib" }
-log = "0.4.21"
-env_logger = "0.11.3"

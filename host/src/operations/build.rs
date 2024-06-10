@@ -37,7 +37,7 @@ pub async fn build_block<N: BlockBuilderStrategy>(
     cli: &Cli,
     rpc_url: Option<String>,
     chain_spec: &ChainSpec,
-    // guest_elf: &[u8],
+    guest_elf: &[u8],
 ) -> anyhow::Result<Option<(String, Receipt)>>
 where
     N::TxEssence: 'static + Send + TryFrom<EthersTransaction> + Serialize + Deserialize<'static>,
@@ -89,41 +89,40 @@ where
         }
     }
 
-    // let compressed_output = output.with_state_hashed();
-    let result = None;
-    // let result = match cli {
-    //     Cli::Build(..) => None,
-    //     Cli::Run(run_args) => {
-    //         execute(
-    //             &input,
-    //             run_args.execution_po2,
-    //             run_args.profile,
-    //             guest_elf,
-    //             &compressed_output,
-    //             &cli.execution_tag(),
-    //         );
-    //         None
-    //     }
-    //     Cli::Prove(..) => {
-    //         maybe_prove(
-    //             cli,
-    //             &input,
-    //             guest_elf,
-    //             &compressed_output,
-    //             Default::default(),
-    //         )
-    //         .await
-    //     }
-    //     Cli::Verify(verify_args) => Some(
-    //         verify_bonsai_receipt(
-    //             compute_image_id(guest_elf)?,
-    //             &compressed_output,
-    //             verify_args.bonsai_receipt_uuid.clone(),
-    //             4,
-    //         )
-    //         .await?,
-    //     ),
-    // };
+    let compressed_output = output.with_state_hashed();
+    let result = match cli {
+        Cli::Build(..) => None,
+        Cli::Run(run_args) => {
+            execute(
+                &input,
+                run_args.execution_po2,
+                run_args.profile,
+                guest_elf,
+                &compressed_output,
+                &cli.execution_tag(),
+            );
+            None
+        }
+        Cli::Prove(..) => {
+            maybe_prove(
+                cli,
+                &input,
+                guest_elf,
+                &compressed_output,
+                Default::default(),
+            )
+            .await
+        }
+        Cli::Verify(verify_args) => Some(
+            verify_bonsai_receipt(
+                compute_image_id(guest_elf)?,
+                &compressed_output,
+                verify_args.bonsai_receipt_uuid.clone(),
+                4,
+            )
+            .await?,
+        ),
+    };
 
     Ok(result)
 }

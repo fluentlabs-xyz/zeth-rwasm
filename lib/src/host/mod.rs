@@ -29,12 +29,6 @@ pub fn cache_file_path(cache_path: &Path, network: &str, block_no: u64, ext: &st
     dir.join(block_no.to_string()).with_extension(ext)
 }
 
-pub fn cache_file_path_exists(cache_path: &Path, network: &str, block_no: u64, ext: &str) -> PathBuf {
-    let dir = cache_path.join(network);
-    // std::fs::(&dir).expect("Could not create directory");
-    dir.join(block_no.to_string()).with_extension(ext)
-}
-
 #[derive(Clone)]
 pub struct ProviderFactory {
     pub dir: Option<PathBuf>,

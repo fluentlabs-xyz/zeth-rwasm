@@ -49,6 +49,17 @@ impl BlockBuildOutput {
         }
     }
 
+    pub fn hash(&self) -> Option<&B256> {
+        match self {
+            BlockBuildOutput::SUCCESS {
+                hash, ..
+            } => Some(hash),
+            BlockBuildOutput::FAILURE {
+                ..
+            } => None,
+        }
+    }
+
     /// Replaces the `state` [`MptNode`] with its root hash, returning the original state.
     pub fn replace_state_with_hash(&mut self) -> Option<MptNode> {
         if let BlockBuildOutput::SUCCESS {

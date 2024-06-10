@@ -16,21 +16,16 @@ extern crate core;
 
 use anyhow::Result;
 use clap::Parser;
-// use log::info;
-// use risc0_zkvm::sha::Digest;
+use log::info;
+use risc0_zkvm::sha::Digest;
 use zeth::{
     cli::{Cli, Network},
-    operations::build,
-    // operations::rollups,
-    // operations::snarks::verify_groth16_snark,
-    // operations::stark2snark,
+    operations::{build, rollups, snarks::verify_groth16_snark, stark2snark},
 };
-// use zeth_guests::*;
+use zeth_guests::*;
 use zeth_lib::{
-    builder::EthereumStrategy,
-    // builder::OptimismStrategy,
-    consts::ETH_MAINNET_CHAIN_SPEC,
-    // consts::OP_MAINNET_CHAIN_SPEC,
+    builder::{EthereumStrategy, OptimismStrategy},
+    consts::{ETH_MAINNET_CHAIN_SPEC, OP_MAINNET_CHAIN_SPEC},
 };
 
 #[tokio::main]
@@ -38,74 +33,70 @@ async fn main() -> Result<()> {
     env_logger::init();
     let cli = Cli::parse();
 
-    // info!("Using the following image ids:");
-    // info!("  eth-block: {}", Digest::from(ETH_BLOCK_ID));
-    // info!("  op-block: {}", Digest::from(OP_BLOCK_ID));
-    // info!("  op-derive: {}", Digest::from(OP_DERIVE_ID));
-    // info!("  op-compose: {}", Digest::from(OP_COMPOSE_ID));
+    info!("Using the following image ids:");
+    info!("  eth-block: {}", Digest::from(ETH_BLOCK_ID));
+    info!("  op-block: {}", Digest::from(OP_BLOCK_ID));
+    info!("  op-derive: {}", Digest::from(OP_DERIVE_ID));
+    info!("  op-compose: {}", Digest::from(OP_COMPOSE_ID));
 
     // execute the command
     let build_args = cli.build_args();
-    // let (image_id, stark) =
-    match build_args.network {
+    let (image_id, stark) = match build_args.network {
         Network::Ethereum => {
             let rpc_url = build_args.eth_rpc_url.clone();
-            // (
-            //     ETH_BLOCK_ID,
-            build::build_block::<EthereumStrategy>(
-                &cli,
-                rpc_url,
-                &ETH_MAINNET_CHAIN_SPEC,
-                // ETH_BLOCK_ELF,
+            (
+                ETH_BLOCK_ID,
+                build::build_block::<EthereumStrategy>(
+                    &cli,
+                    rpc_url,
+                    &ETH_MAINNET_CHAIN_SPEC,
+                    ETH_BLOCK_ELF,
+                )
+                .await?,
             )
-            .await?
-            // )
         }
-        _ => {
-            panic!("not supported network: {:?}", build_args.network)
-        } /* Network::Optimism => {
-           *     let rpc_url = build_args.op_rpc_url.clone();
-           *     (
-           *         OP_BLOCK_ID,
-           *         build::build_block::<OptimismStrategy>(
-           *             &cli,
-           *             rpc_url,
-           *             &OP_MAINNET_CHAIN_SPEC,
-           *             OP_BLOCK_ELF,
-           *         )
-           *         .await?,
-           *     )
-           * }
-           * Network::OptimismDerived => {
-           *     if let Some(composition_size) = build_args.composition {
-           *         (
-           *             OP_COMPOSE_ID,
-           *             rollups::compose_derived_rollup_blocks(&cli, composition_size).await?,
-           *         )
-           *     } else {
-           *         (OP_DERIVE_ID, rollups::derive_rollup_blocks(&cli).await?)
-           *     }
-           * } */
+        Network::Optimism => {
+            let rpc_url = build_args.op_rpc_url.clone();
+            (
+                OP_BLOCK_ID,
+                build::build_block::<OptimismStrategy>(
+                    &cli,
+                    rpc_url,
+                    &OP_MAINNET_CHAIN_SPEC,
+                    OP_BLOCK_ELF,
+                )
+                .await?,
+            )
+        }
+        Network::OptimismDerived => {
+            if let Some(composition_size) = build_args.composition {
+                (
+                    OP_COMPOSE_ID,
+                    rollups::compose_derived_rollup_blocks(&cli, composition_size).await?,
+                )
+            } else {
+                (OP_DERIVE_ID, rollups::derive_rollup_blocks(&cli).await?)
+            }
+        }
     };
 
     // Create/verify Groth16 SNARK
-    // if cli.snark() {
-    //     let Some((stark_uuid, stark_receipt)) = stark else {
-    //         panic!("No STARK data to snarkify!");
-    //     };
-    //
-    //     if !cli.submit_to_bonsai() {
-    //         panic!("Bonsai submission flag required to create a SNARK!");
-    //     }
-    //
-    //     let image_id = Digest::from(image_id);
-    //     let (snark_uuid, snark_receipt) = stark2snark(image_id, stark_uuid,
-    // stark_receipt).await?;
-    //
-    //     info!("Validating SNARK uuid: {}", snark_uuid);
-    //
-    //     verify_groth16_snark(&cli, image_id, snark_receipt).await?;
-    // }
+    if cli.snark() {
+        let Some((stark_uuid, stark_receipt)) = stark else {
+            panic!("No STARK data to snarkify!");
+        };
+
+        if !cli.submit_to_bonsai() {
+            panic!("Bonsai submission flag required to create a SNARK!");
+        }
+
+        let image_id = Digest::from(image_id);
+        let (snark_uuid, snark_receipt) = stark2snark(image_id, stark_uuid, stark_receipt).await?;
+
+        info!("Validating SNARK uuid: {}", snark_uuid);
+
+        verify_groth16_snark(&cli, image_id, snark_receipt).await?;
+    }
 
     Ok(())
 }

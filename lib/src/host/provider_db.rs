@@ -16,25 +16,20 @@ extern crate alloc;
 
 use std::collections::BTreeSet;
 
-use crate::HashMap;
-
 use ethers_core::types::{EIP1186ProofResponse, H160, H256};
-use fluentbase_types::consts::EVM_STORAGE_ADDRESS;
-use hashbrown::hash_map::Entry;
-use log::{debug, info};
 use revm::{
-    primitives::{Account, AccountInfo, Bytecode},
-    Database, DatabaseCommit,
+    Database,
+    DatabaseCommit, primitives::{Account, AccountInfo, Bytecode},
 };
-use revm::primitives::EVMError;
-use zeth_primitives::{block::Header, ethers::{from_ethers_bytes, from_ethers_u256}, Address, B256, U256, Bytes};
+
+use zeth_primitives::{Address, B256, block::Header, Bytes, ethers::{from_ethers_bytes, from_ethers_u256}, U256};
 use zeth_primitives::keccak::KECCAK_EMPTY;
 
 use crate::{
     host::provider::{AccountQuery, BlockQuery, ProofQuery, Provider, StorageQuery},
     mem_db::{DbError, MemDb},
 };
-use crate::host::provider_db;
+use crate::HashMap;
 
 pub struct ProviderDb {
     pub provider: Box<dyn Provider>,
@@ -46,25 +41,22 @@ pub struct ProviderDb {
 
 impl ProviderDb {
     pub fn new(provider: Box<dyn Provider>, block_no: u64) -> Self {
-        let mut initial_db: MemDb = Default::default();
-        let mut latest_db: MemDb = Default::default();
         let mut aux_db: MemDb = Default::default();
+        #[cfg(feature = "revm-rwasm")]
         for (query, code) in provider.get_all_codes() {
             let mut account_info = AccountInfo{
                 code: Some(Bytecode::LegacyRaw(Bytes::copy_from_slice(code.0.as_ref()))),
                 .. Default::default()
             };
-            #[cfg(feature = "revm-rwasm")] {
-                debug!("ProviderDb.new insert_contract address {:?}", query.address);
-                aux_db.insert_contract(&mut account_info);
-            }
+            aux_db.insert_contract(&mut account_info);
+            // aux_db.insert_account_info(Address::new(query.address.0), account_info);
         }
 
         let mut provider_db = ProviderDb {
             provider,
             block_no,
-            initial_db,
-            latest_db,
+            initial_db: Default::default(),
+            latest_db: Default::default(),
             aux_db,
         };
 
@@ -169,13 +161,6 @@ impl Database for ProviderDb {
         }
 
         let account_info = {
-            // #[cfg(feature = "revm-rwasm")] {
-            //     if address == EVM_STORAGE_ADDRESS {
-            //         let mut account_info = AccountInfo::default();
-            //         self.aux_db.insert_contract(&mut account_info);
-            //         return Ok(Some(account_info))
-            //     }
-            // }
             let query = AccountQuery {
                 block_no: self.block_no,
                 address: address.into_array().into(),
@@ -204,16 +189,16 @@ impl Database for ProviderDb {
         if code_hash == KECCAK_EMPTY {
             return Ok(Bytecode::new())
         }
-        match self.latest_db.code_by_hash(code_hash) {
-            Ok(code) => return Ok(code),
-            Err(DbError::HashNotFound(_)) => {},
-            Err(e) => return Err(e.into())
-        }
-        match self.initial_db.code_by_hash(code_hash) {
-            Ok(code) => return Ok(code),
-            Err(DbError::HashNotFound(_)) => {},
-            Err(e) => return Err(e.into()),
-        }
+        // match self.latest_db.code_by_hash(code_hash) {
+        //     Ok(code) => return Ok(code),
+        //     Err(DbError::HashNotFound(_)) => {},
+        //     Err(e) => return Err(e.into())
+        // }
+        // match self.initial_db.code_by_hash(code_hash) {
+        //     Ok(code) => return Ok(code),
+        //     Err(DbError::HashNotFound(_)) => {},
+        //     Err(e) => return Err(e.into()),
+        // }
         match self.aux_db.code_by_hash(code_hash) {
             Ok(code) => return Ok(code),
             // Err(DbError::HashNotFound(_)) => {},

@@ -28,11 +28,6 @@ mod utils;
 
 pub use zeth_primitives::transactions::{ethereum::EthereumTxEssence, optimism::OptimismTxEssence};
 
-// #[cfg(feature = "std")]
-// use std::collections::{HashMap, hash_map::Entry};
-// #[cfg(not(feature = "std"))]
-// use hashbrown::{HashMap, hash_map::Entry};
-
 cfg_if::cfg_if! {
     if #[cfg(all(not(feature = "hashbrown"), feature = "std"))] {
         pub use std::collections::{hash_map, hash_set, HashMap, HashSet};

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use anyhow::anyhow;
-use fluentbase_types::{KECCAK_EMPTY, POSEIDON_EMPTY};
+use fluentbase_types::{KECCAK_EMPTY};
 use crate::{HashMap, hash_map::Entry};
 use revm::{
     primitives::{Account, AccountInfo, Bytecode},
@@ -28,8 +28,8 @@ pub enum DbError {
     /// Returned when an account was accessed but not loaded into the DB.
     #[error("account {0} not loaded")]
     AccountNotFound(Address),
-    /// Returned when an account was accessed but not loaded into the DB.
-    #[error("hash {0} not loaded")]
+    /// Returned when account not found by hash.
+    #[error("not found by hash {0}")]
     HashNotFound(B256),
     /// Returned when storage was accessed but not loaded into the DB.
     #[error("storage {1}@{0} not loaded")]
@@ -85,6 +85,7 @@ impl DbAccount {
 pub struct MemDb {
     /// Account info where None means it is not existing.
     pub accounts: HashMap<Address, DbAccount>,
+    /// Contracts bytecode by hash.
     pub contracts: HashMap<B256, Bytecode>,
     /// All cached block hashes.
     pub block_hashes: HashMap<u64, B256>,
@@ -104,27 +105,6 @@ impl MemDb {
                     .or_insert_with(|| code.clone());
             }
         }
-        if let Some(rwasm_code) = &info.rwasm_code {
-            // unreachable!()
-            // if !rwasm_code.is_empty() {
-            //     if info.rwasm_code_hash == POSEIDON_EMPTY {
-            //         LowLevelSDK::crypto_poseidon(
-            //             rwasm_code.bytes().as_ptr(),
-            //             rwasm_code.len() as u32,
-            //             info.rwasm_code_hash.as_mut_ptr(),
-            //         );
-            //     }
-            //     self.contracts
-            //         .entry(info.rwasm_code_hash)
-            //         .or_insert_with(|| rwasm_code.clone());
-            // }
-        }
-        // if info.code_hash == B256::ZERO {
-        //     info.code_hash = KECCAK_EMPTY;
-        // }
-        // if info.rwasm_code_hash == B256::ZERO {
-        //     info.rwasm_code_hash = POSEIDON_EMPTY;
-        // }
     }
 }
 
@@ -145,9 +125,6 @@ impl MemDb {
     /// Insert account info without overriding its storage.
     /// Panics if a different account info exists.
     pub fn insert_account_info(&mut self, address: Address, info: AccountInfo) {
-        // let mut info = info;
-        // #[cfg(feature = "revm-rwasm")]
-        // self.insert_contract(&mut info);
         match self.accounts.entry(address) {
             Entry::Occupied(entry) => assert_eq!(info, entry.get().info),
             Entry::Vacant(entry) => {
@@ -187,15 +164,14 @@ impl Database for MemDb {
 
     /// Get account code by its hash.
     fn code_by_hash(&mut self, code_hash: B256) -> Result<Bytecode, Self::Error> {
+        // not needed because we already load code with basic info
+        // unreachable!()
         match self.contracts.get(&code_hash) {
             None => {
-                // Ok(Bytecode::new())
                 Err(DbError::HashNotFound(code_hash))
             },
             Some(v) => {Ok(v.clone())}
         }
-        // not needed because we already load code with basic info
-        // unreachable!()
     }
 
     /// Get storage value of address at index.

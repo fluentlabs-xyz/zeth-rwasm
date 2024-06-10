@@ -16,24 +16,24 @@ use core::mem;
 
 use anyhow::{bail, Result};
 use fluentbase_types::POSEIDON_EMPTY;
-use crate::HashMap;
 use revm::{
-    primitives::{AccountInfo, Bytecode, B256},
-    Database, DatabaseCommit,
+    Database,
+    DatabaseCommit, primitives::{AccountInfo, B256, Bytecode},
 };
+
 use zeth_primitives::{
+    Bytes,
     keccak::{keccak, KECCAK_EMPTY},
     transactions::TxEssence,
     trie::StateAccount,
-    Bytes,
 };
 
 use crate::{
     builder::BlockBuilder,
     consts::MAX_BLOCK_HASH_AGE,
-    guest_mem_forget,
     mem_db::{AccountState, DbAccount, MemDb},
 };
+use crate::HashMap;
 
 pub trait DbInitStrategy<D>
 where
@@ -114,7 +114,6 @@ impl DbInitStrategy<MemDb> for MemDbInitStrategy {
                     nonce: state_account.nonce,
                     code_hash: state_account.code_hash,
                     code: Some(bytecode),
-                    // TODO need to fill in these fields?
                     #[cfg(feature = "revm-rwasm")]
                     rwasm_code_hash: POSEIDON_EMPTY,
                     #[cfg(feature = "revm-rwasm")]
@@ -159,10 +158,9 @@ impl DbInitStrategy<MemDb> for MemDbInitStrategy {
             prev = current;
         }
 
-        // Store database
-        // let contracts = Default::default();
         let mut contracts: HashMap<B256, Bytecode> = contracts.into_iter()
-            .map(|v| (v.0, Bytecode::LegacyRaw(v.1.clone()))).collect();
+            .map(|v| (v.0, Bytecode::LegacyRaw(v.1.clone())))
+            .collect();
         contracts.insert(KECCAK_EMPTY, Bytecode::new());
         Ok(block_builder.with_db(MemDb {
             accounts,

@@ -99,8 +99,8 @@ pub static OP_MAINNET_CHAIN_SPEC: Lazy<ChainSpec> = Lazy::new(|| ChainSpec {
             },
         ),
         (
-            SpecId::CANCUN,
             // SpecId::CANYON,
+            SpecId::CANCUN,
             Eip1559Constants {
                 base_fee_change_denominator: uint!(250_U256),
                 base_fee_max_increase_denominator: uint!(10_U256),

@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "std")]
-use std::sync::{Arc, Mutex};
-
 use anyhow::Result;
-use revm::{primitives::SpecId, Database, DatabaseCommit};
+use revm::{Database, DatabaseCommit, primitives::SpecId};
 use serde::Serialize;
+
 use zeth_primitives::{
     block::Header,
-    transactions::{ethereum::EthereumTxEssence, optimism::OptimismTxEssence, TxEssence},
+    transactions::{ethereum::EthereumTxEssence, TxEssence},
     trie::MptNode,
 };
 
-use crate::{
+pub use crate::{
     builder::{
         execute::ethereum::EthTxExecStrategy,
         // execute::optimism::OpTxExecStrategy,
         execute::TxExecStrategy,
         finalize::{BlockFinalizeStrategy, MemDbBlockFinalizeStrategy},
         initialize::{DbInitStrategy, MemDbInitStrategy},
-        prepare::{EthHeaderPrepStrategy, HeaderPrepStrategy},
+        prepare::EthHeaderPrepStrategy,
+        prepare::HeaderPrepStrategy,
     },
     consts::ChainSpec,
     input::BlockBuildInput,
@@ -44,11 +43,6 @@ pub mod finalize;
 mod initialize;
 mod prepare;
 
-// #[cfg(not(target_arch = "wasm32"))]
-// type DatabaseRescue<D> = Arc<Mutex<Option<D>>>;
-// #[cfg(target_arch = "wasm32")]
-// type DatabaseRescue<D> = core::marker::PhantomData<D>;
-
 /// A generic builder for building a block.
 #[derive(Clone, Debug)]
 pub struct BlockBuilder<'a, D, E: TxEssence> {
@@ -57,22 +51,7 @@ pub struct BlockBuilder<'a, D, E: TxEssence> {
     pub(crate) db: Option<D>,
     pub(crate) spec_id: Option<SpecId>,
     pub(crate) header: Option<Header>,
-    // pub db_drop_destination: Option<DatabaseRescue<D>>,
 }
-
-// // This implementation allows us to recover data during erroneous block builds on the
-// host #[cfg(not(target_arch = "wasm32"))]
-// impl<'a, D, E: TxEssence> Drop for BlockBuilder<'a, D, E> {
-//     fn drop(&mut self) {
-//         if let Some(backup_target) = &mut self.db_drop_destination {
-//             if let Some(dropped_db) = self.db.take() {
-//                 if let Ok(mut target_option) = backup_target.lock() {
-//                     target_option.replace(dropped_db);
-//                 }
-//             }
-//         }
-//     }
-// }
 
 impl<D, E> BlockBuilder<'_, D, E>
 where
@@ -84,7 +63,6 @@ where
     pub fn new(
         chain_spec: &ChainSpec,
         input: BlockBuildInput<E>,
-        // db_backup: Option<DatabaseRescue<D>>,
     ) -> BlockBuilder<'_, D, E> {
         BlockBuilder {
             chain_spec,
@@ -92,7 +70,6 @@ where
             spec_id: None,
             header: None,
             input,
-            // db_drop_destination: db_backup,
         }
     }
 

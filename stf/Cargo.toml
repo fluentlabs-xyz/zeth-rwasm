@@ -11,8 +11,8 @@ categories.workspace = true
 
 [dependencies]
 fluentbase-sdk = { workspace = true }
-zeth-lib = { path = "../lib" }
-zeth-primitives = { path = "../primitives" }
+zeth-lib = { workspace = true }
+zeth-primitives = { workspace = true }
 risc0-zkvm = { workspace = true }
 
 [features]

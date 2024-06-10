@@ -18,12 +18,14 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use ethers_core::types::{
-    Block as EthersBlock, EIP1186ProofResponse, Transaction as EthersTransaction,
+    Block as EthersBlock, Block, EIP1186ProofResponse, Transaction as EthersTransaction,
 };
-use crate::{HashMap, HashSet};
+use fluentbase_sdk::{LowLevelSDK, SharedAPI};
+use fluentbase_types::Bytes32;
 use log::{debug, info};
+use revm::{Database, DatabaseCommit};
 use zeth_primitives::{
     block::Header,
     ethers::{from_ethers_h160, from_ethers_h256, from_ethers_u256},
@@ -44,6 +46,7 @@ use crate::{
     },
     input::{BlockBuildInput, StateInput, StorageEntry},
     mem_db::MemDb,
+    HashMap, HashSet,
 };
 
 /// The initial data required to build a block as returned by the [Preflight].
@@ -52,10 +55,10 @@ pub struct Data<E: TxEssence> {
     pub db: MemDb,
     pub parent_header: Header,
     pub parent_proofs: HashMap<Address, EIP1186ProofResponse>,
+    pub proofs: HashMap<Address, EIP1186ProofResponse>,
     pub header: Option<Header>,
     pub transactions: Vec<Transaction<E>>,
     pub withdrawals: Vec<Withdrawal>,
-    pub proofs: HashMap<Address, EIP1186ProofResponse>,
     pub ancestor_headers: Vec<Header>,
 }
 
@@ -116,12 +119,13 @@ where
         let provider_db = ProviderDb::new(provider, parent_header.number);
 
         // Create the input data
-        let input = new_preflight_input(block.clone(), parent_header.clone())?;
+        let block_header: Header = block.clone().try_into().expect("invalid block");
+        let input = new_preflight_input(parent_header.clone(), block)?;
 
         // Create the block builder, run the transactions and extract the DB
         Self::preflight_with_local_data(chain_spec, provider_db, input).map(
             move |mut headerless_preflight_data| {
-                headerless_preflight_data.header = Some(block.try_into().expect("invalid block"));
+                headerless_preflight_data.header = Some(block_header);
                 headerless_preflight_data
             },
         )
@@ -135,17 +139,13 @@ where
         let parent_header = input.state_input.parent_header.clone();
         let transactions = input.state_input.transactions.clone();
         let withdrawals = input.state_input.withdrawals.clone();
-        // Create the block builder, run the transactions and extract the DB even if run fails
-        let db_backup = Arc::new(Mutex::new(None));
-        let builder =
-            BlockBuilder::new(chain_spec, input/*, Some(db_backup.clone())*/).with_db(provider_db);
-
+        let builder = BlockBuilder::new(chain_spec, input).with_db(provider_db);
         let mut provider_db = match builder.prepare_header::<N::HeaderPrepStrategy>() {
             Ok(builder) => match builder.execute_transactions::<N::TxExecStrategy>() {
                 Ok(builder) => builder.take_db().unwrap(),
-                Err(_) => db_backup.lock().unwrap().take().unwrap(),
+                Err(_) => return Err(anyhow!("builder execute transactions failed")),
             },
-            Err(_) => db_backup.lock().unwrap().take().unwrap(),
+            Err(_) => return Err(anyhow!("builder prepare failed")),
         };
 
         info!("Gathering inclusion proofs ...");
@@ -178,9 +178,9 @@ where
     }
 }
 
-fn new_preflight_input<E>(
+pub fn new_preflight_input<E>(
+    parent_block_header: Header,
     block: EthersBlock<EthersTransaction>,
-    parent_header: Header,
 ) -> Result<BlockBuildInput<E>>
 where
     E: TxEssence + TryFrom<EthersTransaction>,
@@ -210,7 +210,7 @@ where
 
     let input = BlockBuildInput {
         state_input: StateInput {
-            parent_header,
+            parent_header: parent_block_header,
             beneficiary: from_ethers_h160(block.author.context("author missing")?),
             gas_limit: from_ethers_u256(block.gas_limit),
             timestamp: from_ethers_u256(block.timestamp),
@@ -313,7 +313,11 @@ fn proofs_to_tries(
             .with_context(|| format!("missing fini_proofs for address {:#}", &address))?;
 
         // assure that addresses can be deleted from the state trie
-        add_orphaned_leafs(address, &fini_proofs.account_proof, &mut state_nodes)?;
+        add_orphaned_leafs(
+            address.as_slice(),
+            &fini_proofs.account_proof,
+            &mut state_nodes,
+        )?;
 
         // if no slots are provided, return the trie only consisting of the storage root
         let storage_root = from_ethers_h256(proof.storage_hash);
@@ -343,7 +347,7 @@ fn proofs_to_tries(
         for storage_proof in &fini_proofs.storage_proof {
             let key = from_ethers_u256(storage_proof.key);
             add_orphaned_leafs(
-                key.to_be_bytes::<32>(),
+                &key.to_be_bytes::<32>(),
                 &storage_proof.proof,
                 &mut storage_nodes,
             )?;
@@ -368,7 +372,7 @@ fn proofs_to_tries(
 
 /// Adds all the leaf nodes of non-inclusion proofs to the nodes.
 fn add_orphaned_leafs(
-    key: impl AsRef<[u8]>,
+    key: &[u8],
     proof: &[impl AsRef<[u8]>],
     nodes_by_reference: &mut HashMap<MptNodeReference, MptNode>,
 ) -> Result<()> {

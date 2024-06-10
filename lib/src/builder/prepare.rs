@@ -98,13 +98,7 @@ impl HeaderPrepStrategy for EthHeaderPrepStrategy {
         block_builder.header = Some(Header {
             // Initialize fields that we can compute from the parent
             parent_hash: block_builder.input.state_input.parent_header.hash(),
-            number: block_builder
-                .input
-                .state_input
-                .parent_header
-                .number
-                .checked_add(1)
-                .context("Invalid block number: too large")?,
+            number,
             base_fee_per_gas: derive_base_fee(
                 &block_builder.input.state_input.parent_header,
                 block_builder.chain_spec.gas_constants(spec_id).unwrap(),
@@ -115,7 +109,6 @@ impl HeaderPrepStrategy for EthHeaderPrepStrategy {
             timestamp,
             mix_hash: block_builder.input.state_input.mix_hash,
             extra_data: block_builder.input.state_input.extra_data.clone(),
-            // do not fill the remaining fields
             ..Default::default()
         });
         Ok(block_builder)
