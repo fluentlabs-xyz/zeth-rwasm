@@ -1,21 +1,16 @@
-use std::{
-    fmt::Debug,
-    path::PathBuf,
-};
+use std::{fmt::Debug, path::PathBuf};
 
 use anyhow::Context;
 use ethers_core::types::transaction::response::Transaction as EthersTransaction;
 use log::debug;
 use serde::{Deserialize, Serialize};
-
 use zeth_lib::{
     builder::BlockBuilderStrategy,
     consts::ChainSpec,
-    host::{preflight::Preflight, verify::Verifier},
+    host::{preflight::Preflight, provider_db::ProviderDb, verify::Verifier},
     input::BlockBuildInput,
     output::BlockBuildOutput,
 };
-use zeth_lib::host::provider_db::ProviderDb;
 use zeth_primitives::block::Header;
 
 pub fn init() {
@@ -35,7 +30,8 @@ where
     let init_spec = chain_spec.clone();
     let preflight_result = tokio::task::spawn_blocking(move || {
         N::preflight_with_external_data(&init_spec, rpc_cache, None, block_no)
-    }).await?;
+    })
+    .await?;
     let preflight_data = preflight_result.context("preflight failed")?;
 
     // Create the guest input from [Init]
@@ -65,20 +61,21 @@ where
     Ok(output)
 }
 
-pub async fn prepare_preflight_input<N: BlockBuilderStrategy>(
+pub async fn prepare_block_build_input<N: BlockBuilderStrategy>(
     chain_spec: &ChainSpec,
     provider_db: ProviderDb,
     preflight_input: BlockBuildInput<<N as BlockBuilderStrategy>::TxEssence>,
     result_block_header: Header,
 ) -> anyhow::Result<BlockBuildInput<N::TxEssence>>
-    where
-        N::TxEssence: 'static + Send + TryFrom<EthersTransaction> + Serialize + Deserialize<'static>,
-        <N::TxEssence as TryFrom<EthersTransaction>>::Error: Debug,
+where
+    N::TxEssence: 'static + Send + TryFrom<EthersTransaction> + Serialize + Deserialize<'static>,
+    <N::TxEssence as TryFrom<EthersTransaction>>::Error: Debug,
 {
     let init_spec = chain_spec.clone();
     let preflight_result = tokio::task::spawn_blocking(move || {
         N::preflight_with_local_data(&init_spec, provider_db, preflight_input)
-    }).await?;
+    })
+    .await?;
     let mut preflight_data = preflight_result.context("preflight failed")?;
     preflight_data.header = Some(result_block_header);
 
@@ -102,7 +99,8 @@ where
     <N::TxEssence as TryFrom<EthersTransaction>>::Error: Debug,
 {
     // Create the guest input from [Init]
-    let input = prepare_preflight_input::<N>(chain_spec, provider_db, input, result_block_header).await?;
+    let input =
+        prepare_block_build_input::<N>(chain_spec, provider_db, input, result_block_header).await?;
 
     // Verify that the transactions run correctly
     debug!("Running from memory ...");

@@ -2,6 +2,7 @@ use std::path::Path;
 
 use alloy_primitives::{hex, B256};
 use anyhow::Context;
+use ethers_core::types::{Block, Transaction};
 use zeth_lib::{
     builder::{BlockBuildInput, BlockBuilderStrategy, EthereumStrategy},
     consts::ETH_MAINNET_CHAIN_SPEC,
@@ -15,7 +16,7 @@ use zeth_lib::{
 };
 use zeth_primitives::{block::Header, transactions::ethereum::EthereumTxEssence};
 
-use crate::helpers::{build_block, build_block_result, init, prepare_preflight_input};
+use crate::helpers::{build_block, build_block_result, init, prepare_block_build_input};
 
 #[tokio::test]
 async fn proof_child_block_test() {
@@ -133,7 +134,7 @@ async fn build_block_using_fully_initialized_block_build_input_test() {
 
     let input: BlockBuildInput<EthereumTxEssence> =
         new_preflight_input(parent_block_header.clone(), result_block).unwrap();
-    let input = prepare_preflight_input::<EthereumStrategy>(
+    let input = prepare_block_build_input::<EthereumStrategy>(
         &ETH_MAINNET_CHAIN_SPEC,
         provider_db,
         input,
