@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use alloy_primitives::{b256, B256};
+#[cfg(feature = "revm-rwasm")]
 use fluentbase_sdk::{Bytes32, LowLevelSDK, SharedAPI};
 use sha3::{Digest, Keccak256};
 
@@ -35,8 +36,16 @@ pub const KECCAK_EMPTY: B256 =
 pub fn keccak(data: impl AsRef<[u8]>) -> [u8; 32] {
     // TODO: Remove this benchmarking code once performance testing is complete.
     // std::hint::black_box(sha2::Sha256::digest(&data));
-    let mut hash_bytes = Bytes32::default();
-    LowLevelSDK::keccak256(data.as_ref().as_ptr(), data.as_ref().len() as u32, hash_bytes.as_mut_ptr());
-    hash_bytes.into()
-    // Keccak256::digest(data).into()
+    #[cfg(feature = "revm-rwasm")]
+    {
+        let mut hash_bytes = Bytes32::default();
+        LowLevelSDK::keccak256(
+            data.as_ref().as_ptr(),
+            data.as_ref().len() as u32,
+            hash_bytes.as_mut_ptr(),
+        );
+        hash_bytes.into()
+    }
+    #[cfg(not(feature = "revm-rwasm"))]
+    Keccak256::digest(data).into()
 }
