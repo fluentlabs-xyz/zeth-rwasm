@@ -23,16 +23,10 @@ use revm::{
     Database, DatabaseCommit, Evm,
 };
 use ruint::aliases::U256;
-use zeth_primitives::{
-    alloy_rlp,
-    receipt::Receipt,
-    transactions::{
-        ethereum::{EthereumTxEssence, TransactionKind},
-        TxEssence,
-    },
-    trie::MptNode,
-    Bloom,
-};
+use zeth_primitives::{alloy_rlp, receipt::Receipt, transactions::{
+    ethereum::{EthereumTxEssence, TransactionKind},
+    TxEssence,
+}, trie::MptNode, Bloom, TxHash, hex};
 
 use super::TxExecStrategy;
 use crate::{builder::BlockBuilder, consts, guest_mem_forget};
@@ -123,6 +117,10 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
             .into_iter()
             .enumerate()
         {
+            // if tx.hash() != TxHash::new(hex!("af998b3119a6016b3731ae87be6f590d99bb84f7fa794ab2ffbaa272fa9dce42")) {
+            //     continue
+            // }
+            println!("tx (hash: {}): {:?}", tx.hash(), &tx);
             // verify the transaction signature
             let tx_from = tx
                 .recover_from()
