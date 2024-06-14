@@ -32,8 +32,8 @@ async fn proof_child_block_test() {
         Some(cache_file_path(cache_path, network, block_no, cache_ext)),
         &ETH_MAINNET_CHAIN_SPEC,
     )
-    .await
-    .expect("expected success");
+    .await;
+    assert!(output.is_ok());
 }
 
 #[tokio::test]
@@ -106,7 +106,7 @@ async fn build_block_with_fully_initialized_block_build_input_test() {
     let original_expected_header_hash = B256::new(hex!(
         "17cf53189035bbae5bce5c844355badd701aa9d2dd4b4f5ab1f9f0e8dd9fea5b"
     ));
-    let fluent_expected_header_hash = B256::new(hex!(
+    let _fluent_expected_header_hash = B256::new(hex!(
         "075f3ef6e49e0fd1f1a8abfb715b49489d5270c4862f61b2e4f4bcebf2152b82"
     ));
     let parent_block_no = 17034870;
@@ -159,10 +159,5 @@ async fn build_block_with_fully_initialized_block_build_input_test() {
         panic!("block build output error")
     };
 
-    // TODO(stas): hashes should match
-    // if cfg!(feature = "revm-rwasm") {
-    //     assert_eq!(fluent_expected_header_hash.0, hash.0);
-    // } else {
     assert_eq!(original_expected_header_hash.0, hash.0);
-    // }
 }

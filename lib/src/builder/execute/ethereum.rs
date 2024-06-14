@@ -117,10 +117,6 @@ impl TxExecStrategy<EthereumTxEssence> for EthTxExecStrategy {
             .into_iter()
             .enumerate()
         {
-            // if tx.hash() != TxHash::new(hex!("af998b3119a6016b3731ae87be6f590d99bb84f7fa794ab2ffbaa272fa9dce42")) {
-            //     continue
-            // }
-            println!("tx (hash: {}): {:?}", tx.hash(), &tx);
             // verify the transaction signature
             let tx_from = tx
                 .recover_from()
