@@ -101,6 +101,6 @@ revm = { path = "../revm-rwasm/crates/revm_fluent", package = "revm-fluent", def
     "std",
     "serde",
     "revm-rwasm",
-#    "debug_print",
+    #    "debug_print",
     #    "e2e",
 ] }
