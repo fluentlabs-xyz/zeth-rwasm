@@ -90,17 +90,19 @@ fluentbase-sdk = { path = "../fluentbase/crates/sdk", default-features = false }
 fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
 
 # revm
-#revm-primitives = { version = "3.0", default_features = false }
-#revm = { version = "9.0", default-features = false, features = [
+#revm-primitives = { git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = ["rwasm"] }
+#revm = { package = "revm-fluent", git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = [
 #    "std",
-#    "serde",
-#    "optimism",
-#] }
+#    "secp256k1",
+#    "blst",
+#    "rwasm",
+#    #    "debug_print",
+#], default-features = false }
 revm-primitives = { path = "../revm-rwasm/crates/primitives", default_features = false }
 revm = { path = "../revm-rwasm/crates/revm_fluent", package = "revm-fluent", default-features = false, features = [
     "std",
     "serde",
-    "revm-rwasm",
+    "rwasm",
     #    "debug_print",
     #    "e2e",
 ] }

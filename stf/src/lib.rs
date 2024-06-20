@@ -24,10 +24,10 @@ pub extern "C" fn main() {
     let block_build_output = EthereumStrategy::build_from(&FLUENT_DEVNET_CHAIN_SPEC, input)
         .expect("failed to build block");
     assert!(block_build_output.success());
-    let result_hash = block_build_output.hash();
+    let result_hash = block_build_output.hash().unwrap_or_default();
     // let output =
     //     BlockBuilder::<MemDb, EthereumTxEssence>::new(&FLUENT_DEVNET_CHAIN_SPEC, input)
     //         .finalize::<MemDbBlockFinalizeStrategy>().expect("failed to build block");
     // let result_hash = output.0.hash();
-    LowLevelSDK::write(result_hash.unwrap_or_default().as_slice());
+    LowLevelSDK::write(result_hash.as_ptr(), result_hash.len() as u32);
 }
