@@ -35,7 +35,7 @@ opt-level = 3
 
 [workspace.dependencies]
 bonsai-sdk = { version = "0.6.0", features = ["async"] }
-hashbrown = { version = "0.14" }
+hashbrown = { version = "0.14", default-features = false }
 risc0-build = { version = "0.21" }
 risc0-zkvm = { version = "0.21", default-features = false }
 ethers-contract = { version = "2.0", features = [
@@ -43,24 +43,24 @@ ethers-contract = { version = "2.0", features = [
 ] }
 ethers-core = { version = "2.0", features = [
     "optimism"
-] }
+], default-features = false }
 ethers-providers = { version = "2.0", features = [
-    "optimism"
+    #    "optimism"
 ] }
 alloy-sol-types = { version = "0.7" }
 alloy-primitives = { version = "0.7", default-features = false, features = [
     "rlp",
     "serde",
-    "std",
+    #    "std",
 ] }
 alloy-rlp = { version = "0.3", default-features = false }
 alloy-rlp-derive = { version = "0.3", default-features = false }
-anyhow = { version = "1.0" }
+anyhow = { version = "1.0", default-features = false }
 hex = "0.4.3"
-bytes = { version = "1.5" }
+bytes = { version = "1.5", default-features = false }
 tokio = { version = "1.23", features = ["full"] }
 cfg-if = "1.0.0"
-rlp = "0.5.2"
+rlp = { version = "0.5.2", default-features = false }
 once_cell = "1.18"
 libflate = "2.0.0"
 ruint = { version = "1.10", default-features = false }
@@ -71,13 +71,13 @@ flate2 = "1.0.26"
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 bincode = "1.3"
 serde_with = "3.1"
-k256 = { version = "=0.13.3", features = [
-    "std",
+k256 = { version = "0.13.3", features = [
+    #    "std",
     "ecdsa",
 ], default_features = false }
-serde = { version = "1.0", features = ["derive"] }
-sha2 = { version = "=0.10.6", default-features = false }
-sha3 = "0.10"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+sha2 = { version = "0.10.6", default-features = false }
+sha3 = { version = "0.10", default-features = false }
 thiserror = "1.0"
 hex-literal = "0.4"
 
@@ -92,7 +92,7 @@ fluentbase-types = { path = "../fluentbase/crates/types", default-features = fal
 # revm
 revm-primitives = { git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = ["rwasm"] }
 revm = { package = "revm-fluent", git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = [
-    "std",
+    #    "std",
     "serde",
     "rwasm",
     #    "debug_print",

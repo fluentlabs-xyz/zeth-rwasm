@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloc::{boxed::Box, format, vec, vec::Vec};
+
 use alloy_primitives::{Address, StorageKey};
 use alloy_rlp_derive::{RlpDecodable, RlpDecodableWrapper, RlpEncodable, RlpEncodableWrapper};
 use serde::{Deserialize, Serialize};

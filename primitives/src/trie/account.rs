@@ -16,7 +16,7 @@ use alloy_primitives::{TxNumber, B256, U256};
 use alloy_rlp_derive::{RlpDecodable, RlpEncodable, RlpMaxEncodedLen};
 use serde::{Deserialize, Serialize};
 
-use crate::{keccak::KECCAK_EMPTY, trie::EMPTY_ROOT};
+use crate::{keccak::KECCAK_EMPTY, r#const::EMPTY_ROOT};
 
 /// Represents an Ethereum account within the state trie.
 ///

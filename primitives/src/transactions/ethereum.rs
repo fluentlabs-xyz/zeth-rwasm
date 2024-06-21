@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloc::{boxed::Box, format, vec, vec::Vec};
+
 use alloy_primitives::{Address, Bytes, ChainId, TxNumber, B256, U256};
 use alloy_rlp::{Decodable, Encodable, EMPTY_STRING_CODE};
 use alloy_rlp_derive::{RlpDecodable, RlpEncodable};
@@ -586,14 +588,14 @@ impl TxEssence for EthereumTxEssence {
         let is_y_odd = self.is_y_odd(signature).context("v invalid")?;
         let signature =
             K256Signature::from_scalars(signature.r.to_be_bytes(), signature.s.to_be_bytes())
-                .context("r, s invalid")?;
+                .expect("r, s invalid");
 
         let verify_key = K256VerifyingKey::recover_from_prehash(
             self.signing_hash().as_slice(),
             &signature,
             RecoveryId::new(is_y_odd, false),
         )
-        .context("invalid signature")?;
+        .expect("invalid signature");
 
         let public_key = K256PublicKey::from(&verify_key);
         let public_key = public_key.to_encoded_point(false);

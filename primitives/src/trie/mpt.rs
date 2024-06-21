@@ -14,7 +14,7 @@
 
 extern crate alloc;
 
-use alloc::boxed::Box;
+use alloc::{boxed::Box, format, string, string::String, vec, vec::Vec};
 use core::{
     cell::RefCell,
     cmp,
@@ -28,7 +28,7 @@ use rlp::{Decodable, DecoderError, Prototype, Rlp};
 use serde::{Deserialize, Serialize};
 use thiserror::Error as ThisError;
 
-use crate::{keccak::keccak, trie::EMPTY_ROOT};
+use crate::{keccak::keccak, r#const::EMPTY_ROOT};
 
 /// Represents the root node of a sparse Merkle Patricia Trie.
 ///

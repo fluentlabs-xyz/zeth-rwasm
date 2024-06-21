@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![cfg_attr(target_arch = "wasm32", no_std)]
+
+extern crate alloc;
+
 extern crate core;
 
 pub mod access_list;
@@ -19,6 +23,7 @@ pub mod block;
 pub mod keccak;
 pub mod receipt;
 pub mod transactions;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod trie;
 pub mod withdrawal;
 
@@ -26,6 +31,8 @@ pub mod withdrawal;
 pub mod ethers;
 
 pub mod batch;
+mod r#const;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod mmr;
 #[cfg(feature = "revm")]
 pub mod revm;

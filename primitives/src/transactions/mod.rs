@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt::Debug;
+use core::fmt::Debug;
 
 use alloy_primitives::{Address, Bytes, TxHash};
 use alloy_rlp::{Decodable, Encodable};
@@ -159,7 +159,7 @@ impl<E: TxEssence + Debug> Transaction<E> {
 
     /// Fully consumes the provided input RLP buffer to decode a Transaction instance
     pub fn decode_strict(buf: &mut &[u8]) -> anyhow::Result<Self> {
-        let result = Self::decode(buf)?;
+        let result = Self::decode(buf).expect("failed to decode tx");
         ensure!(buf.is_empty());
         Ok(result)
     }
