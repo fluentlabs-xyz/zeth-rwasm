@@ -5,7 +5,7 @@ edition = "2021"
 default-run = "zeth"
 
 [dependencies]
-alloy-primitives = { version = "0.6.2", default-features = false, features = [
+alloy-primitives = { workspace = true, default-features = false, features = [
     "rlp",
     "serde",
     "std",

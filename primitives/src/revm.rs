@@ -14,6 +14,8 @@
 
 //! Convert to revm types.
 
+use alloc::vec::Vec;
+
 use alloy_primitives::{Address, U256};
 use revm_primitives::Log as RevmLog;
 
