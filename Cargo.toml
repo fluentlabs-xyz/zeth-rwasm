@@ -90,18 +90,18 @@ fluentbase-sdk = { path = "../fluentbase/crates/sdk", default-features = false }
 fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
 
 # revm
-#revm-primitives = { git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = ["rwasm"] }
-#revm = { package = "revm-fluent", git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = [
-#    #    "std",
-#    "serde",
-#    "rwasm",
-#    #    "debug_print",
-#], default-features = false }
-revm-primitives = { path = "../revm-rwasm/crates/primitives", default_features = false, features = ["rwasm"] }
-revm = { path = "../revm-rwasm/crates/revm_fluent", package = "revm-fluent", default-features = false, features = [
+revm-primitives = { git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = ["rwasm"] }
+revm = { package = "revm-fluent", git = "https://github.com/fluentlabs-xyz/revm-rwasm.git", branch = "devel", features = [
     #    "std",
     "serde",
     "rwasm",
     #    "debug_print",
-    #    "e2e",
-] }
+], default-features = false }
+#revm-primitives = { path = "../revm-rwasm/crates/primitives", default_features = false, features = ["rwasm"] }
+#revm = { path = "../revm-rwasm/crates/revm_fluent", package = "revm-fluent", default-features = false, features = [
+#    #    "std",
+#    "serde",
+#    "rwasm",
+#    #    "debug_print",
+#    #    "e2e",
+#] }
