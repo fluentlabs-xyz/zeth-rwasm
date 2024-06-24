@@ -10,7 +10,7 @@ alloy-rlp-derive = { workspace = true, default-features = false }
 anyhow = { workspace = true, default-features = false }
 bytes = { workspace = true }
 ethers-core = { workspace = true, optional = true }
-revm-primitives = { workspace = true, optional = true }
+revm-primitives = { workspace = true, default-features = false, optional = true }
 rlp = { workspace = true }
 k256 = { workspace = true }
 serde = { workspace = true }
@@ -32,3 +32,6 @@ serde_json = { workspace = true }
 [features]
 ethers = ["dep:ethers-core"]
 revm = ["dep:revm-primitives"]
+std = [
+    "anyhow/std",
+]

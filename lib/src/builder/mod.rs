@@ -13,9 +13,8 @@
 // limitations under the License.
 
 use anyhow::Result;
-use revm::{Database, DatabaseCommit, primitives::SpecId};
+use revm::{primitives::SpecId, Database, DatabaseCommit};
 use serde::Serialize;
-
 use zeth_primitives::{
     block::Header,
     transactions::{ethereum::EthereumTxEssence, TxEssence},
@@ -24,6 +23,7 @@ use zeth_primitives::{
 
 pub use crate::{
     builder::{
+        execute::ethereum::fill_eth_tx_env,
         execute::ethereum::EthTxExecStrategy,
         // execute::optimism::OpTxExecStrategy,
         execute::TxExecStrategy,
@@ -60,10 +60,7 @@ where
     E: TxEssence,
 {
     /// Creates a new block builder.
-    pub fn new(
-        chain_spec: &ChainSpec,
-        input: BlockBuildInput<E>,
-    ) -> BlockBuilder<'_, D, E> {
+    pub fn new(chain_spec: &ChainSpec, input: BlockBuildInput<E>) -> BlockBuilder<'_, D, E> {
         BlockBuilder {
             chain_spec,
             db: None,

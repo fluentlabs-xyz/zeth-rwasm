@@ -1598,6 +1598,23 @@ dependencies = [
 [[package]]
 name = "fluentbase-genesis"
 version = "0.1.0"
+dependencies = [
+ "alloy-genesis",
+ "byteorder",
+ "bytes",
+ "clap",
+ "fluentbase-poseidon 0.1.0",
+ "fluentbase-types 0.1.0",
+ "hashbrown 0.14.5",
+ "hex",
+ "revm-primitives 4.0.0",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "fluentbase-genesis"
+version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#0fbbb3d62e23c3b3e43480d5d82960f572fd7c9a"
 dependencies = [
  "alloy-genesis",
@@ -1684,6 +1701,7 @@ dependencies = [
  "byteorder",
  "fluentbase-codec 0.1.0",
  "fluentbase-codec-derive 0.1.0",
+ "fluentbase-genesis 0.1.0",
  "fluentbase-runtime 0.1.0",
  "fluentbase-sdk-derive 0.1.0",
  "fluentbase-types 0.1.0",
@@ -3126,7 +3144,7 @@ dependencies = [
  "dyn-clone",
  "fluentbase-codec 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
  "fluentbase-core",
- "fluentbase-genesis",
+ "fluentbase-genesis 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
  "fluentbase-poseidon 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
  "fluentbase-runtime 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
  "fluentbase-sdk 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
