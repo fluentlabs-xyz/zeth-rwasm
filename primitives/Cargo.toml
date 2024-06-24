@@ -30,6 +30,7 @@ hex-literal = { workspace = true }
 serde_json = { workspace = true }
 
 [features]
+default = ["std"]
 ethers = ["dep:ethers-core"]
 revm = ["dep:revm-primitives"]
 std = [
