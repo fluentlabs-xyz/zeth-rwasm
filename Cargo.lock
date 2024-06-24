@@ -1521,23 +1521,10 @@ dependencies = [
 name = "fluent-stf"
 version = "0.1.0"
 dependencies = [
- "fluentbase-sdk 0.1.0",
+ "fluentbase-sdk",
  "risc0-zkvm",
  "zeth-lib",
  "zeth-primitives",
-]
-
-[[package]]
-name = "fluentbase-codec"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "byteorder",
- "casey",
- "fluentbase-codec-derive 0.1.0",
- "hashbrown 0.14.5",
- "paste",
- "serde",
 ]
 
 [[package]]
@@ -1548,21 +1535,10 @@ dependencies = [
  "alloy-primitives",
  "byteorder",
  "casey",
- "fluentbase-codec-derive 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-codec-derive",
  "hashbrown 0.14.5",
  "paste",
  "serde",
-]
-
-[[package]]
-name = "fluentbase-codec-derive"
-version = "0.1.0"
-dependencies = [
- "convert_case 0.6.0",
- "crypto-hashes",
- "quote",
- "serde",
- "syn 2.0.68",
 ]
 
 [[package]]
@@ -1584,9 +1560,9 @@ source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c0
 dependencies = [
  "alloy-rlp",
  "byteorder",
- "fluentbase-codec 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-sdk 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-types 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-codec",
+ "fluentbase-sdk",
+ "fluentbase-types",
  "hashbrown 0.14.5",
  "hex",
  "paste",
@@ -1598,47 +1574,19 @@ dependencies = [
 [[package]]
 name = "fluentbase-genesis"
 version = "0.1.0"
-dependencies = [
- "alloy-genesis",
- "byteorder",
- "bytes",
- "clap",
- "fluentbase-poseidon 0.1.0",
- "fluentbase-types 0.1.0",
- "hashbrown 0.14.5",
- "hex",
- "revm-primitives",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "fluentbase-genesis"
-version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c00f5750567c2ff067bc2292236dd173b797d0"
 dependencies = [
  "alloy-genesis",
  "byteorder",
  "bytes",
  "clap",
- "fluentbase-poseidon 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-types 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-poseidon",
+ "fluentbase-types",
  "hashbrown 0.14.5",
  "hex",
  "revm-primitives",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "fluentbase-poseidon"
-version = "0.1.0"
-dependencies = [
- "bitvec",
- "halo2curves 0.6.1 (git+https://github.com/privacy-scaling-explorations/halo2curves?tag=v0.6.1)",
- "lazy_static",
- "poseidon",
- "revm-primitives",
 ]
 
 [[package]]
@@ -1656,33 +1604,14 @@ dependencies = [
 [[package]]
 name = "fluentbase-runtime"
 version = "0.1.0"
-dependencies = [
- "byteorder",
- "chrono",
- "eth_trie",
- "fluentbase-poseidon 0.1.0",
- "fluentbase-types 0.1.0",
- "fluentbase-zktrie 0.1.0",
- "halo2curves 0.6.1 (git+https://github.com/privacy-scaling-explorations/halo2curves?tag=v0.6.1)",
- "hashbrown 0.14.5",
- "hex",
- "hex-literal",
- "k256",
- "keccak-hash",
- "rwasm",
-]
-
-[[package]]
-name = "fluentbase-runtime"
-version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c00f5750567c2ff067bc2292236dd173b797d0"
 dependencies = [
  "byteorder",
  "chrono",
  "eth_trie",
- "fluentbase-poseidon 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-types 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-zktrie 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-poseidon",
+ "fluentbase-types",
+ "fluentbase-zktrie",
  "halo2curves 0.6.1 (git+https://github.com/privacy-scaling-explorations/halo2curves?tag=v0.6.1)",
  "hashbrown 0.14.5",
  "hex",
@@ -1695,46 +1624,18 @@ dependencies = [
 [[package]]
 name = "fluentbase-sdk"
 version = "0.1.0"
-dependencies = [
- "alloy-rlp",
- "byteorder",
- "fluentbase-codec 0.1.0",
- "fluentbase-codec-derive 0.1.0",
- "fluentbase-genesis 0.1.0",
- "fluentbase-runtime 0.1.0",
- "fluentbase-sdk-derive 0.1.0",
- "fluentbase-types 0.1.0",
- "paste",
- "revm-primitives",
-]
-
-[[package]]
-name = "fluentbase-sdk"
-version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c00f5750567c2ff067bc2292236dd173b797d0"
 dependencies = [
  "alloy-rlp",
  "byteorder",
- "fluentbase-codec 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-codec-derive 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-genesis 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-runtime 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-sdk-derive 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-types 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-codec",
+ "fluentbase-codec-derive",
+ "fluentbase-genesis",
+ "fluentbase-runtime",
+ "fluentbase-sdk-derive",
+ "fluentbase-types",
  "paste",
  "revm-primitives",
-]
-
-[[package]]
-name = "fluentbase-sdk-derive"
-version = "0.1.0"
-dependencies = [
- "convert_case 0.6.0",
- "crypto-hashes",
- "proc-macro2",
- "quote",
- "serde",
- "syn 2.0.68",
 ]
 
 [[package]]
@@ -1753,15 +1654,6 @@ dependencies = [
 [[package]]
 name = "fluentbase-types"
 version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "rwasm",
- "strum_macros",
-]
-
-[[package]]
-name = "fluentbase-types"
-version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c00f5750567c2ff067bc2292236dd173b797d0"
 dependencies = [
  "alloy-primitives",
@@ -1772,22 +1664,10 @@ dependencies = [
 [[package]]
 name = "fluentbase-zktrie"
 version = "0.1.0"
-dependencies = [
- "byteorder",
- "fluentbase-poseidon 0.1.0",
- "halo2curves 0.6.1 (git+https://github.com/privacy-scaling-explorations/halo2curves?tag=v0.6.1)",
- "hex",
- "lazy_static",
- "uint",
-]
-
-[[package]]
-name = "fluentbase-zktrie"
-version = "0.1.0"
 source = "git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel#82c00f5750567c2ff067bc2292236dd173b797d0"
 dependencies = [
  "byteorder",
- "fluentbase-poseidon 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-poseidon",
  "halo2curves 0.6.1 (git+https://github.com/privacy-scaling-explorations/halo2curves?tag=v0.6.1)",
  "hex",
  "lazy_static",
@@ -3143,10 +3023,10 @@ dependencies = [
  "cfg-if",
  "dyn-clone",
  "fluentbase-core",
- "fluentbase-genesis 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-runtime 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-sdk 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
- "fluentbase-types 0.1.0 (git+https://github.com/fluentlabs-xyz/fluentbase.git?branch=devel)",
+ "fluentbase-genesis",
+ "fluentbase-runtime",
+ "fluentbase-sdk",
+ "fluentbase-types",
  "lazy_static",
  "revm-interpreter-fluent",
  "revm-precompile",
@@ -4855,8 +4735,8 @@ dependencies = [
  "ethers-core",
  "ethers-providers",
  "flate2",
- "fluentbase-sdk 0.1.0",
- "fluentbase-types 0.1.0",
+ "fluentbase-sdk",
+ "fluentbase-types",
  "hashbrown 0.14.5",
  "libflate",
  "log",
@@ -4882,7 +4762,7 @@ dependencies = [
  "bincode",
  "bytes",
  "ethers-core",
- "fluentbase-sdk 0.1.0",
+ "fluentbase-sdk",
  "hashbrown 0.14.5",
  "hex-literal",
  "k256",
